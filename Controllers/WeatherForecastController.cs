@@ -1,33 +1,44 @@
+using classroom_booking_backend.DataTransferModel;
 using Microsoft.AspNetCore.Mvc;
+using RestSharp;
+using System.Text.Json;
+using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace classroom_booking_backend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+        private readonly RestClient _client;
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public UsersController()
         {
-            _logger = logger;
+            _client = new RestClient("https://intime.tsu.ru/api/web/");
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserList()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var request = new RestRequest("v1/professors");
+            var response = await _client.ExecuteGetAsync(request);
+            if (!response.IsSuccessful)
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                //Logic for handling unsuccessful response
+            }
+
+            var json = response.Content;
+
+            List<UserData> results = JsonSerializer.Deserialize<List<UserData>>(json);
+
+            foreach (var tickerMarket in results)
+            {
+                Console.WriteLine($"{tickerMarket.Id}, {tickerMarket.FullName}");
+            }
+            return Ok();
         }
     }
 }
