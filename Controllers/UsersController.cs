@@ -5,6 +5,7 @@ using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using classroom_booking_backend.Services;
 
 namespace classroom_booking_backend.Controllers
 {
@@ -13,10 +14,11 @@ namespace classroom_booking_backend.Controllers
     public class UsersController : ControllerBase
     {
         private readonly RestClient _client;
-
-        public UsersController()
+        private ICalendarService _calendarService;
+        public UsersController(ICalendarService calendarService)
         {
             _client = new RestClient("https://intime.tsu.ru/api/web/");
+            _calendarService = calendarService;
         }
 
 
@@ -33,12 +35,29 @@ namespace classroom_booking_backend.Controllers
             var json = response.Content;
 
             List<UserData> results = JsonSerializer.Deserialize<List<UserData>>(json);
-
-            foreach (var tickerMarket in results)
-            {
-                Console.WriteLine($"{tickerMarket.Id}, {tickerMarket.FullName}");
-            }
+            await _calendarService.GetTeachers(results);
             return Ok();
+        }
+        [HttpGet]
+        [Route("/teacher")]
+        public async Task<IActionResult> GetTeachers()
+        {
+            try
+            {
+                var result = await _calendarService.GetTeachersList();
+                if(result == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return Ok(result);
+                }
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "Something went wrong during adding a User model");
+            }
         }
     }
 }

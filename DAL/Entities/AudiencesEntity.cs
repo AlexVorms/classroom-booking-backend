@@ -2,12 +2,14 @@
 
 namespace classroom_booking_backend.DAL.Entities
 {
-    public class TeacherEntity
+    public class AudiencesEntity
     {
         [Required]
         public string Id { get; set; }
         [Required]
         [MinLength(4)]
-        public string FullName { get; set; }
+        public string Name { get; set; }
+        [Required]
+        public string BuildingId { get; set; }
     }
 }

@@ -17,6 +17,7 @@ var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
 
 builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.AddScoped<IBuildingService, BuildingsService>();
 
 var app = builder.Build();
 
