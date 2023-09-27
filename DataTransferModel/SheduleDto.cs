@@ -8,6 +8,6 @@ namespace classroom_booking_backend.DataTransferModel
         public string Date { get; set; }
 
         [JsonPropertyName("lessons")]
-        public LessonsDto Lessons { get; set; }
+        public List<LessonsDto> Lessons { get; set; }
     }
 }

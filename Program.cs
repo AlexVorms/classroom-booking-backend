@@ -18,13 +18,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.AddScoped<IBuildingService, BuildingsService>();
-
+builder.Services.AddScoped<ISheduleService, SheduleService>();
 var app = builder.Build();
 
 //DB init and update
-using var serviceScope = app.Services.CreateScope();
-var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-dbContext?.Database.Migrate();
+//using var serviceScope = app.Services.CreateScope();
+//var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//dbContext?.Database.Migrate();
 
 
 // Configure the HTTP request pipeline.

@@ -11,5 +11,8 @@ namespace classroom_booking_backend.DAL.Entities
         public string Name { get; set; }
         [Required]
         public string BuildingId { get; set; }
+
+        public string? ShortName { get; set; }
+        public BuildingEntity? Building { get; set; }
     }
 }

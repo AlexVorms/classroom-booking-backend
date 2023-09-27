@@ -12,10 +12,11 @@ namespace classroom_booking_backend.Controllers
     public class SheduleController : ControllerBase
     {
         private readonly RestClient _client;
-
-        public SheduleController()
+        private ISheduleService _sheduleService;
+        public SheduleController(ISheduleService sheduleService)
         {
             _client = new RestClient("https://intime.tsu.ru/api/web/");
+            _sheduleService = sheduleService;
         }
 
         [HttpGet]
@@ -33,6 +34,7 @@ namespace classroom_booking_backend.Controllers
                 {
                     var json = response.Content;
                     List<SheduleDto> results = JsonSerializer.Deserialize<List<SheduleDto>>(json);
+                    await _sheduleService.AddShedule(results, id);
                     return Ok();
                 }
             }

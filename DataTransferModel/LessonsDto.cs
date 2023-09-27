@@ -9,11 +9,16 @@ namespace classroom_booking_backend.DataTransferModel
 
         [JsonPropertyName("id")]
         public string Id { get; set; }
-
+        [JsonPropertyName("lessonNumber")]
         public int LessonNumber { get; set; }
-        public int Starts { get; set; } 
+        [JsonPropertyName("starts")]
+        public int Starts { get; set; }
+        [JsonPropertyName("ends")]
         public int Ends { get; set; }
-        public AudiencesDto Audience { get; set; }
+        [JsonPropertyName("audience")]
+        public AudiencesForSheduleDto Audience { get; set; }
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
 
     }
 }
