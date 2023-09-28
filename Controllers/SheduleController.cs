@@ -3,7 +3,9 @@ using classroom_booking_backend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RestSharp;
+using System.Globalization;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace classroom_booking_backend.Controllers
 {
@@ -24,6 +26,7 @@ namespace classroom_booking_backend.Controllers
         {
             try
             {
+
                 var request = new RestRequest("v1/schedule/audience?id=" + id + "&dateFrom=" + dateFrom + "&dateTo=" + dateTo);
                 var response = await _client.ExecuteGetAsync(request);
                 if (!response.IsSuccessful)
@@ -44,5 +47,22 @@ namespace classroom_booking_backend.Controllers
             }
         }
 
-    }
+        [HttpGet]
+        [Route("/getshedule")]
+        public async Task<IActionResult> GetShedule(string id, string dateTo, string dateFrom)
+        {
+            try
+            {
+                DateTime dateFrom1 = DateTime.ParseExact(dateFrom + " 14:40:52,531", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+                DateTime dateTo1 = DateTime.ParseExact(dateTo + " 14:40:52,531", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+                await _sheduleService.GetSheduleInDb(dateTo1, dateFrom1, id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
+
+    } 
 }

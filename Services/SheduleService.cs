@@ -9,6 +9,7 @@ namespace classroom_booking_backend.Services
     public interface ISheduleService
     {
         Task<Boolean> AddShedule(List<SheduleDto> results, string AudienceId);
+        Task<Boolean> GetSheduleInDb(DateTime dateTo, DateTime dateFrom, string AudienceId);
     }
     public class SheduleService: ISheduleService
     {
@@ -23,13 +24,16 @@ namespace classroom_booking_backend.Services
             var audience = await _context
                                 .Audiences
                                 .Where(a => a.Id == AudienceId)
+                                .Include(r => r.Building)
                                 .FirstOrDefaultAsync();
 
             foreach ( var i in results)
             {
+                DateTime date1 = DateTime.ParseExact(i.Date + " 14:40:52,531", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+
                 var SheduleEntity = await _context
                 .Shedules
-                .Where(a => a.Date == i.Date)
+                .Where(a => a.Date == date1)
                 .ToListAsync();
 
                 if(SheduleEntity.Count == 0)
@@ -37,20 +41,7 @@ namespace classroom_booking_backend.Services
                     var listLessons = new List<LessonEntity>();
                     foreach(var lesson in i.Lessons)
                     {
-                        if (lesson.Type == "EMPTY")
-                        {
-                                var EmptyLessons = new LessonEntity
-                                {
-                                    Type = lesson.Type,
-                                    LessonNumber = lesson.LessonNumber,
-                                    Starts = lesson.Starts,
-                                    Ends = lesson.Ends,
-                                    Audience = audience
-                                };
-                                listLessons.Add(EmptyLessons);
-                            
-                        }
-                        else
+                        if (lesson.Type != "EMPTY")
                         {
                             if(audience.Building == null)
                             {
@@ -74,23 +65,38 @@ namespace classroom_booking_backend.Services
                                 LessonNumber = lesson.LessonNumber,
                                 Starts = lesson.Starts,
                                 Ends = lesson.Ends,
-                                Audience = audience,
                                 Id = lesson.Id, 
-                                Title = lesson.Title,
+                                Title = lesson.Title
                             };
                             listLessons.Add(Lessons);
                         }
                     }
-
-                    
                     await _context.Shedules.AddAsync(new DAL.Entities.SheduleEntity
                     {
-                       Date = i.Date,
-                       Lessons = listLessons
+                       Date = date1,
+                       Lessons = listLessons, 
+                       AudienceId = audience.Id
                     });
                     await _context.SaveChangesAsync();
                 }
             }
+            return true;
+        }
+        public async Task<Boolean> GetSheduleInDb(DateTime DateTo, DateTime DateFrom, string AudienceId)
+        {
+            //var shedule = await _context
+            //      .Shedules
+            //      .Where(a =>( a.Date >= DateTo) && (a.Date <= DateFrom))
+            //      .Include(r => r.Lessons)
+            //     .ToListAsync();
+
+            //var lessons = await _context
+            //    .Lessons
+            //     .ToListAsync();
+            //var lessons2 = await _context
+            //    .Lessons
+            //    .Include(r => r.Audience)
+            //     .ToListAsync();
             return true;
         }
     }
