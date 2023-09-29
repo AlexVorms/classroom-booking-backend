@@ -11,9 +11,5 @@ namespace classroom_booking_backend.DAL.Entities
         public DateTime Date { get; set; }
         [Required]
         public List<LessonEntity> Lessons { get; set; }
-
-        [Key]
-        [Required]
-        public string AudienceId { get; set; }
     }
 }

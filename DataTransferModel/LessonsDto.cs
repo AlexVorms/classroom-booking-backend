@@ -20,5 +20,10 @@ namespace classroom_booking_backend.DataTransferModel
         [JsonPropertyName("title")]
         public string Title { get; set; }
 
+        [JsonPropertyName("professor")]
+        public ProfessorDto Professor { get; set; }
+
+        [JsonPropertyName("lessonType")]
+        public string LessonType { get; set; }
     }
 }

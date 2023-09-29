@@ -49,14 +49,14 @@ namespace classroom_booking_backend.Controllers
 
         [HttpGet]
         [Route("/getshedule")]
-        public async Task<IActionResult> GetShedule(string id, string dateTo, string dateFrom)
+        public async Task<IActionResult> GetShedule(string id, string dateFrom, string dateTo)
         {
             try
             {
                 DateTime dateFrom1 = DateTime.ParseExact(dateFrom + " 14:40:52,531", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
                 DateTime dateTo1 = DateTime.ParseExact(dateTo + " 14:40:52,531", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
-                await _sheduleService.GetSheduleInDb(dateTo1, dateFrom1, id);
-                return Ok();
+                var result = await _sheduleService.GetSheduleInDb(dateTo1, dateFrom1, id);
+                return Ok(result);
             }
             catch (Exception ex)
             {

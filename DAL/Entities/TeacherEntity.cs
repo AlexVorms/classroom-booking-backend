@@ -9,5 +9,6 @@ namespace classroom_booking_backend.DAL.Entities
         [Required]
         [MinLength(4)]
         public string FullName { get; set; }
+        public string? ShortName { get; set; }
     }
 }

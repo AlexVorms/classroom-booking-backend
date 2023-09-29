@@ -18,5 +18,13 @@ namespace classroom_booking_backend.DAL.Entities
         public int Ends { get; set; }
         [Required]
         public string Title { get; set; }
+        [Required]
+        public DateTime Date { get; set; }
+        [Required]
+        public AudiencesEntity Audience { get; set; }
+        [Required]
+        public string LessonType { get; set; }
+        [Required]
+        public TeacherEntity Professor { get; set; }
     }
 }
