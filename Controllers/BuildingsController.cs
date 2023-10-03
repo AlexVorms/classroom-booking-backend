@@ -85,7 +85,15 @@ namespace classroom_booking_backend.Controllers
                     var json = response.Content;
                     List<AudiencesDto> results = JsonSerializer.Deserialize<List<AudiencesDto>>(json);
                    await _buildingService.AddAudiences(id, results);
-                    return Ok();
+                    var result = await _buildingService.GetAudiencesList(id);
+                    if (result == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        return Ok(result);
+                    }
                 }
             }
             catch (Exception ex)
@@ -95,7 +103,7 @@ namespace classroom_booking_backend.Controllers
         }
 
         [HttpGet]
-        [Route("/audiences/get/id")]
+        [Route("/audiences/get")]
         public async Task<IActionResult> GetAudiences(string id)
         {
             try

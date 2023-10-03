@@ -6,6 +6,18 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+
+            //you can configure your custom policy
+            builder.AllowAnyOrigin()
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -20,7 +32,7 @@ builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.AddScoped<IBuildingService, BuildingsService>();
 builder.Services.AddScoped<ISheduleService, SheduleService>();
 var app = builder.Build();
-
+app.UseCors();
 //DB init and update
 //using var serviceScope = app.Services.CreateScope();
 //var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

@@ -9,7 +9,7 @@ namespace classroom_booking_backend.Services
     public interface ISheduleService
     {
         Task<Boolean> AddShedule(List<SheduleDto> results, string AudienceId);
-        Task<List<LessonsDto>> GetSheduleInDb(DateTime dateTo, DateTime dateFrom, string AudienceId);
+        Task<List<LessonsWithDateDto>> GetSheduleInDb(DateTime dateTo, DateTime dateFrom, string AudienceId);
     }
     public class SheduleService: ISheduleService
     {
@@ -28,9 +28,11 @@ namespace classroom_booking_backend.Services
                                 .FirstOrDefaultAsync();
             foreach ( var i in results)
             {
-                DateTime date1 = DateTime.ParseExact(i.Date + " 14:40:52,531", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+                DateTime date1 = DateTime.ParseExact(i.Date + " 07:00:00,000", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
                     foreach(var lesson in i.Lessons)
                     {
+                   
+
                         if (lesson.Type != "EMPTY")
                         {
                             var teacher = await _context
@@ -92,7 +94,7 @@ namespace classroom_booking_backend.Services
             }
             return true;
         }
-        public async Task<List<LessonsDto>> GetSheduleInDb(DateTime DateTo, DateTime DateFrom, string AudienceId)
+        public async Task<List<LessonsWithDateDto>> GetSheduleInDb(DateTime DateTo, DateTime DateFrom, string AudienceId)
         {
 
             var lessons = await _context
@@ -102,7 +104,7 @@ namespace classroom_booking_backend.Services
                 .Where(a => (a.Date >= DateFrom) && (a.Date <= DateTo) && (a.Audience.Id == AudienceId))
                 .ToListAsync();
 
-            var lessonsList = new List<LessonsDto>();
+            var lessonsList = new List<LessonsWithDateDto>();
             foreach (var lesson in lessons) {
 
                 var professor = new ProfessorDto
@@ -134,17 +136,19 @@ namespace classroom_booking_backend.Services
                     Building = build
                 };
 
-                var l = new LessonsDto
+
+                var l = new LessonsWithDateDto
                 {
                     Id = lesson.Id,
                     LessonNumber = lesson.LessonNumber,
                     Type = lesson.Type,
-                    Starts = lesson.Starts,
-                    Ends = lesson.Ends,
+                    Start = lesson.Date.AddSeconds(lesson.Starts),
+                    End = lesson.Date.AddSeconds(lesson.Ends),
                     Title = lesson.Title,
                     LessonType = lesson.LessonType,
                     Professor = professor,
-                    Audience = audience
+                    Audience = audience,
+                    Date = lesson.Date
                 };
                 lessonsList.Add(l);
             }

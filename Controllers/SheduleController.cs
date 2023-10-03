@@ -38,7 +38,10 @@ namespace classroom_booking_backend.Controllers
                     var json = response.Content;
                     List<SheduleDto> results = JsonSerializer.Deserialize<List<SheduleDto>>(json);
                     await _sheduleService.AddShedule(results, id);
-                    return Ok();
+                    DateTime dateFrom1 = DateTime.ParseExact(dateFrom + " 07:00:00,000", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+                    DateTime dateTo1 = DateTime.ParseExact(dateTo + " 07:00:00,000", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+                    var result = await _sheduleService.GetSheduleInDb(dateTo1, dateFrom1, id);
+                    return Ok(result);
                 }
             }
             catch (Exception ex)
