@@ -42,7 +42,8 @@ namespace classroom_booking_backend.Services
 
                             var lessonEntity = await _context
                                 .Lessons
-                                .Where(a=> a.Id == lesson.Id) 
+                                .Include(r => r.Audience)
+                                .Where(a=> (a.Date == date1) && (a.Audience.Id == lesson.Audience.Id) && (a.Starts == lesson.Starts)) 
                                 .FirstOrDefaultAsync();
 
                             if (lessonEntity == null)

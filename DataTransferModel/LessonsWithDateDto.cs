@@ -11,9 +11,9 @@ namespace classroom_booking_backend.DataTransferModel
         public string Id { get; set; }
         [JsonPropertyName("lessonNumber")]
         public int LessonNumber { get; set; }
-        [JsonPropertyName("starts")]
+        [JsonPropertyName("start")]
         public DateTime Start { get; set; }
-        [JsonPropertyName("ends")]
+        [JsonPropertyName("end")]
         public DateTime End { get; set; }
         [JsonPropertyName("audience")]
         public AudiencesForSheduleDto Audience { get; set; }
