@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using classroom_booking_backend.DataTransferModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 
 namespace classroom_booking_backend.Controllers
 {
@@ -7,5 +9,22 @@ namespace classroom_booking_backend.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
+        public BookingController()
+        {
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddBooking(CreateBookingDto data)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
     }
 }
