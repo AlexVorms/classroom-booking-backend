@@ -20,6 +20,11 @@ namespace classroom_booking_backend.DAL.Entities
         [Required]
         public UserEntity User { get; set; }
         [Required]
-        public LessonEntity Lesson { get; set; }
+        public DateTime Date { get; set; }
+        [Required]
+        public int Start { get; set; }
+        [Required]
+        public int End { get; set; }
+
     }
 }

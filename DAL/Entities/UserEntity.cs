@@ -5,7 +5,7 @@ namespace classroom_booking_backend.DAL.Entities
     public class UserEntity
     {
         [Required]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         [Required]
         public string Email { get; set; }
         [Required]

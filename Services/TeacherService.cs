@@ -11,11 +11,11 @@ namespace classroom_booking_backend.Services
         Task<Boolean> GetTeachers(List<UserData> results);
         Task<List<UserData>> GetTeachersList();
     }
-    public class CalendarService: ICalendarService
+    public class TeacherService: ICalendarService
     {
         private readonly ApplicationDbContext _context;
 
-        public CalendarService(ApplicationDbContext context)
+        public TeacherService(ApplicationDbContext context)
         {
             _context = context;
         }

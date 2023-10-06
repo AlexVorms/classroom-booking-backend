@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using classroom_booking_backend.DAL;
 
@@ -11,9 +12,11 @@ using classroom_booking_backend.DAL;
 namespace classroom_booking_backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231006035224_createUserEntity")]
+    partial class createUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,16 +61,10 @@ namespace classroom_booking_backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("End")
-                        .HasColumnType("int");
+                    b.Property<string>("LessonId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("ParticipantCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Start")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -83,6 +80,8 @@ namespace classroom_booking_backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AudienceId");
+
+                    b.HasIndex("LessonId");
 
                     b.HasIndex("UserId");
 
@@ -226,6 +225,10 @@ namespace classroom_booking_backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("classroom_booking_backend.DAL.Entities.LessonEntity", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId");
+
                     b.HasOne("classroom_booking_backend.DAL.Entities.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -233,6 +236,8 @@ namespace classroom_booking_backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Audience");
+
+                    b.Navigation("Lesson");
 
                     b.Navigation("User");
                 });

@@ -28,9 +28,13 @@ builder.Services.AddSwaggerGen();
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
 
-builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.AddScoped<ICalendarService, TeacherService>();
 builder.Services.AddScoped<IBuildingService, BuildingsService>();
 builder.Services.AddScoped<ISheduleService, SheduleService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+
+
 var app = builder.Build();
 app.UseCors();
 //DB init and update

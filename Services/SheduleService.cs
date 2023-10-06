@@ -107,7 +107,7 @@ namespace classroom_booking_backend.Services
 
             var lessonsList = new List<LessonsWithDateDto>();
             foreach (var lesson in lessons) {
-
+                if(lesson.Type == "LESSON") { 
                 var professor = new ProfessorDto
                 {
                     Id = lesson.Professor.Id,
@@ -141,7 +141,7 @@ namespace classroom_booking_backend.Services
                 var l = new LessonsWithDateDto
                 {
                     Id = lesson.Id,
-                    LessonNumber = lesson.LessonNumber,
+                    LessonNumber = (int)lesson.LessonNumber,
                     Type = lesson.Type,
                     Start = lesson.Date.AddSeconds(lesson.Starts),
                     End = lesson.Date.AddSeconds(lesson.Ends),
@@ -152,6 +152,45 @@ namespace classroom_booking_backend.Services
                     Date = lesson.Date
                 };
                 lessonsList.Add(l);
+                }
+                else
+                {
+                    var building = await _context
+                   .Building
+                   .Where(a => a.Id == lesson.Audience.BuildingId)
+                   .FirstOrDefaultAsync();
+
+                    var build = new BuildingForSheduleDto
+                    {
+                        Id = building.Id,
+                        Address = building.Address,
+                        Latitude = building.Latitude,
+                        Longitude = building.Longitude,
+                        Name = building.Name
+                    };
+
+                    var audience = new AudiencesForSheduleDto
+                    {
+                        Id = lesson.Audience.Id,
+                        Name = lesson.Audience.Name,
+                        ShortName = lesson.Audience.ShortName,
+                        Building = build
+                    };
+                    var l = new LessonsWithDateDto
+                    {
+                        Id = lesson.Id,
+                        LessonNumber = (int)lesson.LessonNumber,
+                        Type = lesson.Type,
+                        Start = lesson.Date.AddSeconds(lesson.Starts),
+                        End = lesson.Date.AddSeconds(lesson.Ends),
+                        Title = lesson.Title,
+                        LessonType = lesson.LessonType,
+                        Professor = null,
+                        Audience = audience,
+                        Date = lesson.Date
+                    };
+                    lessonsList.Add(l);
+                }
             }
             return lessonsList;
         }

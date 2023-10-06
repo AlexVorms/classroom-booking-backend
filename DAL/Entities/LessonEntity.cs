@@ -10,8 +10,7 @@ namespace classroom_booking_backend.DAL.Entities
         public string Type { get; set; }
         [Required]
         public string Id { get; set; }
-        [Required]
-        public int LessonNumber { get; set; }
+        public int? LessonNumber { get; set; }
         [Required]
         public int Starts { get; set; }
         [Required]
@@ -22,9 +21,7 @@ namespace classroom_booking_backend.DAL.Entities
         public DateTime Date { get; set; }
         [Required]
         public AudiencesEntity Audience { get; set; }
-        [Required]
-        public string LessonType { get; set; }
-        [Required]
-        public TeacherEntity Professor { get; set; }
+        public string? LessonType { get; set; }
+        public TeacherEntity? Professor { get; set; }
     }
 }
