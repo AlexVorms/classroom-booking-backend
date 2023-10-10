@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using classroom_booking_backend.DAL;
 
@@ -11,9 +12,11 @@ using classroom_booking_backend.DAL;
 namespace classroom_booking_backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231009073310_CreateAddFieldsTable2")]
+    partial class CreateAddFieldsTable2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +29,9 @@ namespace classroom_booking_backend.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BookingEntityId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BookingId")
@@ -44,7 +50,9 @@ namespace classroom_booking_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FieldsBooking");
+                    b.HasIndex("BookingEntityId");
+
+                    b.ToTable("AddFieldsForBookingEntity");
                 });
 
             modelBuilder.Entity("classroom_booking_backend.DAL.Entities.AudiencesEntity", b =>
@@ -161,6 +169,9 @@ namespace classroom_booking_backend.Migrations
                     b.Property<string>("ProfessorId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("SheduleEntityDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Starts")
                         .HasColumnType("int");
 
@@ -178,7 +189,19 @@ namespace classroom_booking_backend.Migrations
 
                     b.HasIndex("ProfessorId");
 
+                    b.HasIndex("SheduleEntityDate");
+
                     b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("classroom_booking_backend.DAL.Entities.SheduleEntity", b =>
+                {
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Date");
+
+                    b.ToTable("Shedules");
                 });
 
             modelBuilder.Entity("classroom_booking_backend.DAL.Entities.TeacherEntity", b =>
@@ -215,6 +238,13 @@ namespace classroom_booking_backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("classroom_booking_backend.DAL.Entities.AddFieldsForBookingEntity", b =>
+                {
+                    b.HasOne("classroom_booking_backend.DAL.Entities.BookingEntity", null)
+                        .WithMany("AddFields")
+                        .HasForeignKey("BookingEntityId");
                 });
 
             modelBuilder.Entity("classroom_booking_backend.DAL.Entities.AudiencesEntity", b =>
@@ -259,9 +289,23 @@ namespace classroom_booking_backend.Migrations
                         .WithMany()
                         .HasForeignKey("ProfessorId");
 
+                    b.HasOne("classroom_booking_backend.DAL.Entities.SheduleEntity", null)
+                        .WithMany("Lessons")
+                        .HasForeignKey("SheduleEntityDate");
+
                     b.Navigation("Audience");
 
                     b.Navigation("Professor");
+                });
+
+            modelBuilder.Entity("classroom_booking_backend.DAL.Entities.BookingEntity", b =>
+                {
+                    b.Navigation("AddFields");
+                });
+
+            modelBuilder.Entity("classroom_booking_backend.DAL.Entities.SheduleEntity", b =>
+                {
+                    b.Navigation("Lessons");
                 });
 #pragma warning restore 612, 618
         }

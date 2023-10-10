@@ -1,6 +1,7 @@
 ﻿using classroom_booking_backend.DAL;
 using classroom_booking_backend.DAL.Entities;
 using classroom_booking_backend.DataTransferModel;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace classroom_booking_backend.Services
@@ -9,6 +10,7 @@ namespace classroom_booking_backend.Services
     {
         Task<Boolean> AddBooking(CreateBookingDto model);
         Task<List<BookingDto>> GetUserBooking(string UserId);
+        Task<Boolean> ChangeBookingStatus(ChangeBookingStatusDto data);
     }
 
     public class BookingService : IBookingService
@@ -20,8 +22,8 @@ namespace classroom_booking_backend.Services
 
         public async Task<Boolean> AddBooking(CreateBookingDto model)
         {
-            DateTime startModel = DateTime.ParseExact(model.Start, "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
-            DateTime endModel = DateTime.ParseExact(model.End, "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime startModel = DateTime.ParseExact(model.Date + " " + model.Start + ":00,000", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime endModel = DateTime.ParseExact(model.Date + " " + model.End + ":00,000", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
             DateTime dateModel = DateTime.ParseExact(model.Date + " 07:00:00,000", "yyyy-MM-dd HH:mm:ss,fff", System.Globalization.CultureInfo.InvariantCulture);
             int start = (startModel.Hour - 7)*60*60 + (startModel.Minute * 60);
             int end = (endModel.Hour - 7) * 60 * 60 + (endModel.Minute * 60);
@@ -55,23 +57,7 @@ namespace classroom_booking_backend.Services
                         .Where(a => a.Id.ToString() == model.UserId)
                         .FirstOrDefaultAsync();
 
-                    
-
-                    //var lessonEntity = new LessonEntity
-                    //{
-                    //    Id = Guid.NewGuid().ToString(),
-                    //    Type = "BOOKING",
-                    //    Title = model.Title,
-                    //    Audience = audience,
-                    //    Professor = null,
-                    //    LessonType = null, 
-                    //    Starts= start,
-                    //    Ends= end,
-                    //    LessonNumber = 0,
-                    //    Date = dateModel
-
-                    //};
-
+                   
                     var Booking = new BookingEntity
                     {
                         Id = Guid.NewGuid(),
@@ -86,7 +72,16 @@ namespace classroom_booking_backend.Services
                         Date = dateModel
                     };
 
+                    var description = new AddFieldsForBookingEntity
+                    {
+                        Id = Guid.NewGuid(),
+                        Date = DateTime.Now,
+                        Type = DAL.Enums.BookingTypeFieldEnum.DescriptionEvent,
+                        Text = model.Description,
+                        BookingId = Booking.Id.ToString()
+                    };
                     await _context.Bookings.AddAsync(Booking);
+                    await _context.FieldsBooking.AddAsync(description);
                     await _context.SaveChangesAsync();
                     return true;
                 }
@@ -142,12 +137,102 @@ namespace classroom_booking_backend.Services
                     Start = booking.Date.AddSeconds(booking.Start),
                     End = booking.Date.AddSeconds(booking.End),
                     Audience = audience,
-                    ParticipantCount = booking.ParticipantCount
+                    ParticipantCount = booking.ParticipantCount,
+                    Id = booking.Id.ToString()
                 };
                 bookingList.Add(b);
             }
 
             return bookingList;
+        }
+
+        public async Task<Boolean> ChangeBookingStatus(ChangeBookingStatusDto data)
+        {
+            var bookingEntity = await _context
+                .Bookings
+                .Include(r => r.Audience)
+                .Where(a=> a.Id.ToString() == data.BookingId)
+                .FirstOrDefaultAsync();
+
+            if (bookingEntity == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (data.Status == DAL.Enums.BookingStatusEnum.Approved)
+                {
+                    var lesson = new LessonEntity
+                    {
+                        Id = bookingEntity.Id.ToString(),
+                        Starts = bookingEntity.Start,
+                        Ends = bookingEntity.End,
+                        Date = bookingEntity.Date,
+                        Audience = bookingEntity.Audience,
+                        LessonType = "BOOKING",
+                        Professor = null,
+                        Type = "LESSON",
+                        Title = bookingEntity.Title,
+                        LessonNumber = 2
+                    };
+                    var lessonEntity = await _context //проверка на наличие подтвержденного бронирования или пары в это время
+                    .Lessons
+                    .Include(r => r.Audience)
+                    .Where(a => (a.Audience.Id == bookingEntity.Audience.Id) && (a.Starts == bookingEntity.Start) && (a.Date == bookingEntity.Date))
+                    .FirstOrDefaultAsync();
+                    if (lessonEntity == null)
+                    {
+                        bookingEntity.Status = data.Status;
+                        await _context.SaveChangesAsync();
+
+                        var Fields = new AddFieldsForBookingEntity
+                        {
+                            Id = Guid.NewGuid(),
+                            Date = DateTime.Now,
+                            BookingId = bookingEntity.Id.ToString(),
+                            Type = DAL.Enums.BookingTypeFieldEnum.ResponseBooking,
+                            Text = data.Text,
+                        };
+
+                        await _context.FieldsBooking.AddAsync(Fields);
+                        await _context.Lessons.AddAsync(lesson);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        bookingEntity.Status = DAL.Enums.BookingStatusEnum.Rejected;// если в это время существует отодобренная бронь или пара, бронь автоматически отменяется
+                        await _context.SaveChangesAsync();
+                        var addFields2 = new AddFieldsForBookingEntity
+                        {
+                            Id = Guid.NewGuid(),
+                            Date = DateTime.Now,
+                            BookingId = bookingEntity.Id.ToString(),
+                            Type = DAL.Enums.BookingTypeFieldEnum.ResponseBooking,
+                            Text = "К сожалению, в это время забронировано другое мероприятие или занятие.",
+                        };
+                        await _context.FieldsBooking.AddAsync(addFields2);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    bookingEntity.Status = data.Status;
+                    await _context.SaveChangesAsync();
+
+                    var addFields = new AddFieldsForBookingEntity
+                    {
+                        Id = Guid.NewGuid(),
+                        Date = DateTime.Now,
+                        Type = DAL.Enums.BookingTypeFieldEnum.ResponseBooking,
+                        Text = data.Text,
+                        BookingId = bookingEntity.Id.ToString()
+                    };
+
+                    await _context.FieldsBooking.AddAsync(addFields);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            return true;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace classroom_booking_backend.DataTransferModel
         public DateTime Date { get; set; }
         public string Title { get; set; }
         public int ParticipantCount { get; set; }
-
+        public string Id { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public string Status { get; set; }

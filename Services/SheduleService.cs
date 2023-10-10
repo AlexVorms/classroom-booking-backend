@@ -107,7 +107,7 @@ namespace classroom_booking_backend.Services
 
             var lessonsList = new List<LessonsWithDateDto>();
             foreach (var lesson in lessons) {
-                if(lesson.Type == "LESSON") { 
+                if((lesson.Type == "LESSON") && (lesson.LessonType != "BOOKING")) { 
                 var professor = new ProfessorDto
                 {
                     Id = lesson.Professor.Id,

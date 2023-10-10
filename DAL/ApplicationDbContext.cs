@@ -9,10 +9,9 @@ namespace classroom_booking_backend.DAL
         public DbSet<BuildingEntity> Building { get; set; }
         public DbSet<AudiencesEntity> Audiences { get; set; }
         public DbSet<LessonEntity> Lessons { get; set; }
-        public DbSet<SheduleEntity> Shedules { get; set; }
         public DbSet<BookingEntity> Bookings { get; set; }
         public DbSet<UserEntity> User { get; set; }
-
+        public DbSet<AddFieldsForBookingEntity> FieldsBooking { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             Database.EnsureCreated();

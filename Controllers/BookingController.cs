@@ -45,5 +45,20 @@ namespace classroom_booking_backend.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpPost]
+        [Route("/changeStatus")]
+        public async Task<IActionResult> ChangeStatus(ChangeBookingStatusDto result)
+        {
+            try
+            {
+                await _bookingService.ChangeBookingStatus(result);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
     }
 }
