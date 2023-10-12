@@ -1,6 +1,7 @@
 ﻿using classroom_booking_backend.DAL;
 using classroom_booking_backend.DAL.Entities;
 using classroom_booking_backend.DataTransferModel;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,8 @@ namespace classroom_booking_backend.Services
         Task<Boolean> AddBooking(CreateBookingDto model);
         Task<List<BookingDto>> GetUserBooking(string UserId);
         Task<Boolean> ChangeBookingStatus(ChangeBookingStatusDto data);
+        Task<BookingDetailsDto> GetBookingDetails(string bookingId);
+        Task<Boolean> DeleteBooking(string bookingId);
     }
 
     public class BookingService : IBookingService
@@ -233,6 +236,100 @@ namespace classroom_booking_backend.Services
                 }
             }
             return true;
+        }
+
+        public async Task<BookingDetailsDto> GetBookingDetails(string bookingId)
+        {
+            var booking = await _context
+                .Bookings
+                .Include(n => n.Audience)
+                .Where(a => a.Id.ToString() == bookingId)
+                .FirstOrDefaultAsync();
+
+
+                var AudienceEntity = await _context
+                    .Audiences
+                    .Include(r => r.Building)
+                    .Where(a => a.Id == booking.Audience.Id)
+                    .FirstOrDefaultAsync();
+
+                var FieldsEntity = await _context
+                .FieldsBooking
+                .Where(a => a.BookingId == bookingId)
+                .ToListAsync();
+
+            var description = "";
+
+            var FieldsList = new List<BookingFieldsDto>();
+            foreach(var field in FieldsEntity )
+            {
+                if(field.Type == DAL.Enums.BookingTypeFieldEnum.DescriptionEvent)
+                {
+                     description = field.Text;
+                }
+                else
+                {
+                    var entity = new BookingFieldsDto
+                    {
+                        Date = field.Date,
+                        Type = field.Type.ToString(),
+                        Value = field.Text
+                    };
+
+                    FieldsList.Add(entity);
+                }
+            }
+                var build = new BuildingForSheduleDto
+                {
+                    Id = AudienceEntity.Building.Id,
+                    Address = AudienceEntity.Building.Address,
+                    Latitude = AudienceEntity.Building.Latitude,
+                    Longitude = AudienceEntity.Building.Longitude,
+                    Name = AudienceEntity.Building.Name
+                };
+
+                var audience = new AudiencesForSheduleDto
+                {
+                    Id = AudienceEntity.Id,
+                    Name = AudienceEntity.Name,
+                    ShortName = AudienceEntity.ShortName,
+                    Building = build
+                };
+                var b = new BookingDetailsDto
+                {
+                    Date = booking.Date,
+                    Title = booking.Title,
+                    CreatedAt = booking.CreatedAt,
+                    Status = booking.Status.ToString(),
+                    Start = booking.Date.AddSeconds(booking.Start),
+                    End = booking.Date.AddSeconds(booking.End),
+                    Audience = audience,
+                    ParticipantCount = booking.ParticipantCount,
+                    Id = booking.Id.ToString(),
+                    Description = description,
+                    BookingFields = FieldsList
+                };
+            return b;
+        }
+
+        public async Task<Boolean> DeleteBooking(string bookingId)
+        {
+            var booking = await _context
+                .Bookings
+                .Include(n => n.Audience)
+                .Where(a => a.Id.ToString() == bookingId)
+                .FirstOrDefaultAsync();
+
+            if (booking == null)
+            {
+                return false;
+            }
+            else
+            {
+                _context.Bookings.Remove(booking);
+                await _context.SaveChangesAsync();
+                return true;
+            }
         }
     }
 }

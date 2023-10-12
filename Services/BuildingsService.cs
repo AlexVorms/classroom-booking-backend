@@ -51,7 +51,9 @@ namespace classroom_booking_backend.Services
         public async Task<List<BuildingDto>> GetBuildingList()
         {
             var buildings = await _context
-                .Building.ToListAsync();
+                .Building
+                .OrderBy(x => x.Name)
+                .ToListAsync();
 
             var listBuilding = new List<BuildingDto>();
 

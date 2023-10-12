@@ -60,5 +60,36 @@ namespace classroom_booking_backend.Controllers
                 return StatusCode(500);
             }
         }
+        [HttpGet]
+        [Route("/bookingDetails/{id}")]
+
+        public async Task<IActionResult> GetBookingDetails(string id)
+        {
+            try
+            {
+                var result = await _bookingService.GetBookingDetails(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpDelete]
+        [Route("/deleteBooking/{id}")]
+
+        public async Task<IActionResult> DeleteBooking(string id)
+        {
+            try
+            {
+                await _bookingService.DeleteBooking(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
     }
 }
